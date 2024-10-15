@@ -37,12 +37,10 @@ func main() {
 	// add a job to the scheduler
 	_, err = s.NewJob(
 		gocron.DurationJob(
-			// 1*time.Minute,
-			5*time.Second,
+			5*time.Minute,
 		),
 		gocron.NewTask(
 			func(a string, b int) {
-				fmt.Println("Run")
 				app()
 			},
 			"hello",
@@ -93,19 +91,6 @@ func app() {
 	}
 
 	oldStatus = status
-}
-
-func getOldStatus() Status {
-	buf, err := os.ReadFile("state.json")
-	if err != nil {
-		debug.PrintStack()
-		log.Fatal()
-	}
-
-	var status Status
-	json.Unmarshal([]byte(buf), &status)
-
-	return status
 }
 
 func sendJoinMessage(player Player) {
@@ -169,8 +154,6 @@ func getServerStatus() Status {
 		debug.PrintStack()
 		log.Fatal(err)
 	}
-
-	os.WriteFile("state.json", []byte(buf), os.FileMode(0777))
 
 	var status Status
 	json.Unmarshal([]byte(buf), &status)
