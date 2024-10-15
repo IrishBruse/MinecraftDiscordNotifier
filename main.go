@@ -133,7 +133,7 @@ func sendLeftMessage(player Player) {
 
 	jsonData, _ := json.Marshal(webhook)
 
-	_, err := http.Post(os.Getenv("DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
+	_, err := http.Post(os.Getenv("MC_DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		debug.PrintStack()
 		log.Fatal(err)
