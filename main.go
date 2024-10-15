@@ -40,6 +40,7 @@ func main() {
 		),
 		gocron.NewTask(
 			func(a string, b int) {
+				fmt.Println("Run")
 				app()
 			},
 			"hello",
