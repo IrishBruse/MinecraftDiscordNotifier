@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime/debug"
 	"slices"
 	"strconv"
 	"strings"
@@ -29,14 +30,15 @@ func main() {
 	// create a scheduler
 	s, err := gocron.NewScheduler()
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
 	// add a job to the scheduler
 	_, err = s.NewJob(
 		gocron.DurationJob(
-			3*time.Minute,
-			// 5*time.Second,
+			// 1*time.Minute,
+			5*time.Second,
 		),
 		gocron.NewTask(
 			func(a string, b int) {
@@ -48,6 +50,7 @@ func main() {
 		),
 	)
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
@@ -63,6 +66,7 @@ func app() {
 	ip = os.Getenv("MC_DISCORD_IP")
 	parsedPort, err := strconv.Atoi(os.Getenv("MC_DISCORD_PORT"))
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
@@ -94,6 +98,7 @@ func app() {
 func getOldStatus() Status {
 	buf, err := os.ReadFile("state.json")
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal()
 	}
 
@@ -114,6 +119,7 @@ func sendJoinMessage(player Player) {
 
 	_, err := http.Post(os.Getenv("MC_DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 }
@@ -129,6 +135,7 @@ func sendLeftMessage(player Player) {
 
 	_, err := http.Post(os.Getenv("DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 }
@@ -136,6 +143,7 @@ func sendLeftMessage(player Player) {
 func getServerStatus() Status {
 	c, err := net.Dial("tcp", ip+":"+strconv.Itoa((int)(port)))
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 	defer c.Close()
@@ -152,11 +160,13 @@ func getServerStatus() Status {
 
 	statusRes, err := packet.NewInboundPacket(c, time.Duration(time.Second*30))
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
 	buf, err := statusRes.ReadString()
 	if err != nil {
+		debug.PrintStack()
 		log.Fatal(err)
 	}
 
