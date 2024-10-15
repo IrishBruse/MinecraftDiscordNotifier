@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-co-op/gocron/v2"
 )
 
 var ip = "127.0.0.1"
@@ -21,7 +23,42 @@ var port int16 = 25565
 const red int64 = 15598853
 const green int64 = 388613
 
+var oldStatus Status
+
 func main() {
+	// create a scheduler
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// add a job to the scheduler
+	_, err = s.NewJob(
+		gocron.DurationJob(
+			3*time.Minute,
+			// 5*time.Second,
+		),
+		gocron.NewTask(
+			func(a string, b int) {
+				app()
+			},
+			"hello",
+			1,
+		),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// start the scheduler
+	s.Start()
+
+	// block forever
+	select {}
+}
+
+func app() {
+
 	ip = os.Getenv("MC_DISCORD_IP")
 	parsedPort, err := strconv.Atoi(os.Getenv("MC_DISCORD_PORT"))
 	if err != nil {
@@ -30,7 +67,6 @@ func main() {
 
 	port = int16(parsedPort)
 
-	oldStatus := getOldStatus()
 	status := getServerStatus()
 
 	oldPlayers := oldStatus.Players.Sample
@@ -51,6 +87,7 @@ func main() {
 		}
 	}
 
+	oldStatus = status
 }
 
 func getOldStatus() Status {

@@ -13,10 +13,6 @@ GO_VERSION = '1.22.5'
 [env]
 PORT = '8080'
 
-[processes]
-app = ""
-cron = "cron -f"
-
 [[vm]]
 memory = '256mb'
 cpu_kind = 'shared'
