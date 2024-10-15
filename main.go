@@ -22,8 +22,8 @@ const red int64 = 15598853
 const green int64 = 388613
 
 func main() {
-	ip = os.Args[1]
-	parsedPort, err := strconv.Atoi(os.Args[2])
+	ip = os.Getenv("MC_DISCORD_IP")
+	parsedPort, err := strconv.Atoi(os.Getenv("MC_DISCORD_PORT"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func sendJoinMessage(player Player) {
 
 	jsonData, _ := json.Marshal(webhook)
 
-	_, err := http.Post(os.Getenv("DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
+	_, err := http.Post(os.Getenv("MC_DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Fatal(err)
 	}

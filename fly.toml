@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for minecraft-discord-notifier on 2024-10-15T01:02:08+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'minecraft-discord-notifier'
+primary_region = 'lhr'
+
+[build]
+[build.args]
+GO_VERSION = '1.22.5'
+
+[env]
+PORT = '8080'
+
+[processes]
+app = ""
+cron = "cron -f"
+
+[[vm]]
+memory = '256mb'
+cpu_kind = 'shared'
+cpus = 1
