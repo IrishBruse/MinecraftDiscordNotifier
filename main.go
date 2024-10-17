@@ -61,6 +61,8 @@ func main() {
 
 func app() {
 
+	fmt.Println("App Starting alpine")
+
 	ip = os.Getenv("MC_DISCORD_IP")
 	parsedPort, err := strconv.Atoi(os.Getenv("MC_DISCORD_PORT"))
 	if err != nil {
