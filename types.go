@@ -5,6 +5,7 @@ type DiscordWebhook struct {
 	AvatarURL string  `json:"avatar_url"`
 	Content   string  `json:"content"`
 	Embeds    []Embed `json:"embeds"`
+	Flags     int     `json:"flags"`
 }
 
 type Embed struct {

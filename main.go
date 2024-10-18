@@ -100,6 +100,7 @@ func sendJoinMessage(player Player) {
 		Username:  player.Name,
 		AvatarURL: fmt.Sprintf("https://minotar.net/avatar/" + strings.ReplaceAll(player.ID, "-", "") + ".png"),
 		Content:   "joined the game",
+		Flags:     4096, // Silent Messages
 	}
 
 	jsonData, _ := json.Marshal(webhook)
