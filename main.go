@@ -38,7 +38,7 @@ func main() {
 	// add a job to the scheduler
 	_, err = s.NewJob(
 		gocron.DurationJob(
-			5*time.Minute,
+			2*time.Minute,
 		),
 		gocron.NewTask(
 			func(a string, b int) {
@@ -87,7 +87,6 @@ func app() {
 		if inOld && !inNew {
 			if player.Name == "Nocnava_" && rand.Intn(10) == 0 {
 				sendMessage(player, "**Crashed**")
-
 			} else {
 				sendMessage(player, "**Left the game**")
 			}
