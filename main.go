@@ -41,11 +41,9 @@ func main() {
 			2*time.Minute,
 		),
 		gocron.NewTask(
-			func(a string, b int) {
+			func() {
 				app()
 			},
-			"hello",
-			1,
 		),
 	)
 	if err != nil {
