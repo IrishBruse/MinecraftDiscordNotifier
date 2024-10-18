@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"minecraft-discord-notifier/packet"
 	"net"
 	"net/http"
@@ -84,39 +85,28 @@ func app() {
 		inOld := slices.Contains(oldPlayers, player)
 
 		if inOld && !inNew {
-			sendLeftMessage(player)
+			if player.Name == "Nocnava_" && rand.Intn(10) == 0 {
+				sendMessage(player, "**Crashed**")
+
+			} else {
+				sendMessage(player, "**Left the game**")
+			}
 		}
 
 		if !inOld && inNew {
-			sendJoinMessage(player)
+			sendMessage(player, "**Joined the game**")
 		}
 	}
 
 	oldStatus = status
 }
 
-func sendJoinMessage(player Player) {
+func sendMessage(player Player, message string) {
 	webhook := DiscordWebhook{
 		Username:  player.Name,
 		AvatarURL: fmt.Sprintf("https://minotar.net/avatar/" + strings.ReplaceAll(player.ID, "-", "") + ".png"),
-		Content:   "joined the game",
+		Content:   message,
 		Flags:     4096, // Silent Messages
-	}
-
-	jsonData, _ := json.Marshal(webhook)
-
-	_, err := http.Post(os.Getenv("MC_DISCORD_WEBHOOK"), "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		debug.PrintStack()
-		log.Fatal(err)
-	}
-}
-
-func sendLeftMessage(player Player) {
-	webhook := DiscordWebhook{
-		Username:  player.Name,
-		AvatarURL: fmt.Sprintf("https://minotar.net/avatar/" + strings.ReplaceAll(player.ID, "-", "") + ".png"),
-		Content:   "left the game",
 	}
 
 	jsonData, _ := json.Marshal(webhook)
