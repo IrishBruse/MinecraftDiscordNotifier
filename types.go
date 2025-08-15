@@ -33,28 +33,3 @@ type Footer struct {
 type Image struct {
 	URL string `json:"url"`
 }
-
-//
-
-type Status struct {
-	Version            Version `json:"version"`
-	EnforcesSecureChat bool    `json:"enforcesSecureChat"`
-	Description        string  `json:"description"`
-	Players            Players `json:"players"`
-}
-
-type Players struct {
-	Max    int64    `json:"max"`
-	Online int64    `json:"online"`
-	Sample []Player `json:"sample"`
-}
-
-type Player struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type Version struct {
-	Name     string `json:"name"`
-	Protocol int64  `json:"protocol"`
-}
