@@ -35,7 +35,6 @@ func main() {
 		debug.PrintStack()
 		log.Fatal(err)
 	}
-
 	app()
 
 	// add a job to the scheduler
@@ -123,7 +122,7 @@ func loadEnvironmentVars() {
 func sendMessage(player string, message string) {
 	webhook := DiscordWebhook{
 		Username:  player,
-		AvatarURL: fmt.Sprintf("https://minotar.net/avatar/" + player + ".png"),
+		AvatarURL: fmt.Sprintf("https://minotar.net/avatar/" + player + "/100.png"),
 		Content:   message,
 		Flags:     4096, // Silent Messages
 	}
