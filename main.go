@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"os"
@@ -21,7 +23,7 @@ import (
 )
 
 var ip = ""
-var port uint16 = 26585
+var port uint16 = 0
 var webhookUrl = ""
 
 var oldStatus *response.QueryFull = &response.QueryFull{}
@@ -35,6 +37,11 @@ func main() {
 		debug.PrintStack()
 		log.Fatal(err)
 	}
+
+	fmt.Println("Querying Server at " + ip + ":" + fmt.Sprint(port))
+
+	sendMessage("Bot", "", "**Restarted!**")
+
 	app()
 
 	// add a job to the scheduler
@@ -62,8 +69,6 @@ func main() {
 
 func app() {
 
-	fmt.Println("Querying " + ip + ":" + fmt.Sprint(port))
-
 	status := getServerStatus()
 
 	oldPlayers := oldStatus.Players
@@ -78,25 +83,25 @@ func app() {
 		inOld := slices.Contains(oldPlayers, player)
 
 		if inOld && !inNew {
-			if rand.Intn(50) == 0 {
+			if rand.Intn(30) == 0 {
 				switch player {
 				case "Nocnava_":
-					sendMessage(player, "**Crashed**")
+					sendPlayerMessage(player, "**Crashed**")
 				case "Ryanosaurus":
-					sendMessage(player, "**PC Exploded :myan:**")
+					sendPlayerMessage(player, "**Nuked his PC**")
 				}
 			} else {
-				sendMessage(player, "**Left the game**")
+				sendPlayerMessage(player, "**Left the game**")
 			}
 		}
 
 		if !inOld && inNew {
-			sendMessage(player, "**Joined the game**")
+			sendPlayerMessage(player, "**Joined the game**")
 		}
 	}
 
-	if rand.Intn(7200) == 0 {
-		sendMessage("Herobrine", "**Joined the game**")
+	if rand.Intn(3400) == 0 {
+		sendPlayerMessage("Your_Da", "**Joined the game**")
 	}
 
 	oldStatus = status
@@ -119,11 +124,72 @@ func loadEnvironmentVars() {
 	webhookUrl = url
 }
 
-func sendMessage(player string, message string) {
+type Profile struct {
+	Id string `json:"id"`
+}
+
+func getMinecraftProfile(player string) (*Profile, error) {
+
+	resp, err := http.Get("https://api.mojang.com/users/profiles/minecraft/" + player)
+	if err != nil {
+		return nil, fmt.Errorf("error making HTTP request: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status: %s", resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+
+	var profile Profile
+
+	err = json.Unmarshal(body, &profile)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling JSON: %w", err)
+	}
+
+	return &profile, nil
+}
+
+func sendPlayerMessage(player string, message string) {
+
+	profile, err := getMinecraftProfile(player)
+	uuid := profile.Id
+
+	if err != nil {
+		debug.PrintStack()
+		slog.Error("Error", err)
+
+		uuid = "60e832dbfeb745e2b92fe82e5132bf03"
+	}
+
 	webhook := DiscordWebhook{
 		Username:  player,
-		AvatarURL: fmt.Sprintf("https://minotar.net/avatar/" + player + "/100.png"),
+		AvatarURL: fmt.Sprintf("https://api.mineatar.io/face/" + uuid),
 		Content:   message,
+		Flags:     4096, // Silent Messages
+	}
+
+	jsonData, _ := json.Marshal(webhook)
+
+	_, err = http.Post(webhookUrl, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		debug.PrintStack()
+		slog.Error("Error", err)
+	}
+}
+
+func sendMessage(username string, avatarUrl string, content string) {
+
+	webhook := DiscordWebhook{
+		Username:  username,
+		AvatarURL: avatarUrl,
+		Content:   content,
 		Flags:     4096, // Silent Messages
 	}
 
@@ -132,7 +198,7 @@ func sendMessage(player string, message string) {
 	_, err := http.Post(webhookUrl, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		debug.PrintStack()
-		log.Fatal(err)
+		slog.Error("Error", err)
 	}
 }
 
